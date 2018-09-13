@@ -1,0 +1,199 @@
+php artisan make:model Cat -m -r
+php artisan migrate:rollback
+php artisan migrate:refresh
+php artisan migrate
+php artisan db:seed --class=BreedsTableSeeder
+composer dump-autoload
+php artisan app:name ten
+php artisan make:auth
+--------------------------------------------------------
+ubuntu:
+	tao project
+	composer install (ko co folder vendor)
+	cp .env.example .env (ko co file .env)
+	php artisan key:generate
+	edit -> Homestead.yaml
+		forders:
+			-map: ~/code/ten folder chua code
+			-to: home/vagrant/code/ten folder chua code
+		sites:
+			-map : abc.com
+			-to: home/vagrant/code/ten folder/public
+	Edit file hosts: 
+		sudo nano /etc/hosts
+		add 192.168.10.10 abc.com
+		ctrl + X -> Y -> enter -> enter
+	cd ~/Homestead
+		vagrant up --provision (chay may ao)
+		vagrant ssh (vao may ao)
+		vagrant exit (thoat may ao)
+		vagrant halt (close)
+	web abc.com
+
+	mo file .env
+		DB_connection = mysql
+		DB_host = 192.168.10.10
+		Db_database = abc
+		DB_username = homestead
+		DB_password =secret
+
+		quang.tran@asiantech.vn
+
+windown
+	vao c:\xampp\htdocs\ ->git bash here
+	git bash
+		tao project
+	Add host xampp:
+		C:\xamp\apache\conf\extra\httpd-vhost
+		copy and sua 
+			<virtualHost>
+				DocumentRoot "C:\xampp\htdocs\tenproject\public"
+				ServerName abc.com
+			</virtualHost>
+	Add host trong win c:\windown\system32\driver\etc\hosts 127.0.0.1 abc.com
+	restart apache mysql -> xampp
+
+	vao abc.com\myphpadmin
+		tao database: abc
+	kiem tra file foldercode\.env
+		DB_connection = mysql
+		DB_host = 127.0.0.1
+		Db_database = abc
+		DB_username = root
+		DB_password =
+	Folder code
+		Mo file : foldercode\config\database.php
+			tim toi dong 'mysql': -> tim xoa 'mb4'
+
+
+---------------------------------------------------------
+Restful :Method
+	show: GET/cats
+	create: GET/cats/create
+	store: POST/cats
+	edit:GET/cats/id/edit
+
+
+@method('put') == <input type="hidden" name="_method" value="PUT">
+
+--------------------------------------------------------------------------------------------
+
+ORM: Object Relational Mapping
+
+Retrieving data::
+	Cat::all()
+	Cat::find($id)
+	Order::count()
+	Book::max('number_of_page')
+
+Filtering records
+	Cat::where('id','=',1)->first();
+	Cat::where('id','=',1)->get();
+	Cat::orderBy('name column', 'asc')->get();
+	Cat::where('id','=',1)->orwhere('column','>=',value)->get();
+	Cat::where('id','=',1)->take(5)->get();
+	Cat::where('id','=',1)->where('ten column','toan tu so sanh',gia tri)->get();
+
+Saving data
+	--	$cat=Cat::find(1);
+		print $cat->name;
+		$cat->name = 'Garfield';
+		$cat->save();
+	--	$data = [ ];
+		$cat = Cat::create($data);
+
+Deleting data
+	--	$cat = Cat::find(1);
+		$cat->delete();
+	--	Cat::destroy(1);
+
+Soft deletion
+	--	User::withTrashed()->where('id',3)->first();
+	--	$User->forceDelete(); Xoa hoan toan
+	
+Query scope
+
+Relationships
+	$user = user::find(1);
+	$user->roles()->attach([1,2,3,2]);
+	$user->roles()->sync(1,2);
+	-
+	\DB::enableQueryLog();
+    $User = User::with('profile')->first();
+    $User = User::find(1)->profile;
+    dd($User, \DB::getQueryLog());
+
+	Image : id,imageable_id, imageable_type, path
+	User::find(1)->images;
+
+----------------------------------------------------------------------------
+
+Mode events
+
+		
+----------------------------------------------------------------------------
+
+Route::resource('photos', 'PhotoController');
+Route::get('photos/popular', 'PhotoController@method');
+Route::get('/cats',[ 
+	'as' => 'cats.index',
+	'uses' => 'CatController@index'
+]);
+
+------------------------------------------------------------------------------
+Authentication
+	php artisan make:auth
+	Route::get('login','LoginController@showFormlogin')
+	php artisan route:list
+	protected $redirectTo = '/cats'; //Link muon chuyen den
+
+Middleware
+	php artisan make:middleware CheckLoginMiddleware
+	Route::get('/cats', 'CatController@index')->middleware(['auth','admin']);
+	Add column in table: php artisan make:migration add_column_is_admin_in_user_table
+	khai bao middleware : App\Http\Kernel.php
+		them 1 dong o protected $routeMiddleware = [
+								'tenMiddleware' => 'duong dan toi file middleware::class',
+							];
+
+---------------------------------------------------------------------------------
+Name class
+	Viet hoa chu cai dau tien
+	khong co "s"
+	ten class giong ten file
+
+Bien
+	$product_new
+	$productnew
+---------------------------------------------------------------------------------
+
+WEB SERVICE API
+	-rest
+		-resource like text,JSON and XML
+	-create 1API
+		-step1: create controller
+			-php artisan make:controller Api/CatController -r
+		-step2: write route:
+			-edit file: app\route\api.php
+			add 
+			Route::group(['namespace'=>'Api'], function(){
+				Route::get('/cats',
+				[
+					'as' => 'cat.index',
+					'uses' => 'CatController@index'
+				]);
+
+			});
+		-step 3 
+			-edit app\Http\Api\CatController.php
+			-Edit function index()
+				-Get all cat: $cats = Cat::all();
+				-Return json: return response()->json($cats,200);
+----------------------------------------------------------------------------------
+AJAX -> Asynchronows javasrcipt and XML
+
+XMLHttpRequest -> request->server -> response data -> Js, html,DOM -> view html
+
+
+
+				
